@@ -25,7 +25,7 @@ public:
     void loadStlFile(const QString& fileName);
     void update_name();
 public slots:
-    ModelPart* settingsDialog();
+    void settingsDialog();
     void buttonNotInUse();
     void handleTreeClicked();
 signals:

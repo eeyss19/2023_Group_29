@@ -78,7 +78,7 @@ MainWindow::~MainWindow()
  * @brief Handles the button click event.
  * @return The selected ModelPart.
  */
-ModelPart* MainWindow::settingsDialog(){
+void MainWindow::settingsDialog(){
     QModelIndex index = ui->treeView->currentIndex();
 
     /* Get a pointer to the item from the index */
@@ -93,8 +93,15 @@ ModelPart* MainWindow::settingsDialog(){
     } else {
         emit statusUpdateMessage(QString("Dialog rejected"), 0);
     }
-    return selectedPart;
 }
+
+/**
+ * @brief Handles the "Item Options" action trigger.
+ */
+void MainWindow::on_actionItem_Options_triggered(){
+    	settingsDialog();
+}
+
 
 /**
  * @brief Handles the second button click event.
@@ -166,12 +173,6 @@ void MainWindow::update_name()
 
 
 
-/**
- * @brief Handles the "Item Options" action trigger.
- */
-void MainWindow::on_actionItem_Options_triggered(){
-    // Add some sort of dropdown?
-}
 
 /**
  * @brief Updates the render window.

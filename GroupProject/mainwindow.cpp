@@ -171,9 +171,6 @@ void MainWindow::update_name()
 	updateRender();
 }
 
-
-
-
 /**
  * @brief Updates the render window.
  */

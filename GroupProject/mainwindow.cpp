@@ -55,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
     renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
     ui->widget->setRenderWindow(renderWindow);
 
+
     /* Add a renderer */
     vtkNew<vtkNamedColors> colors;
     renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -86,8 +87,6 @@ ModelPart* MainWindow::settingsDialog(){
     OptionDialog dialog(this);
     dialog.set_ptr(selectedPart);
     dialog.loadSettings();
-
-    connect(&dialog, &OptionDialog::settingsSaved, this, &MainWindow::updateRender);
 
     if (dialog.exec() == QDialog::Accepted) {
         emit statusUpdateMessage(QString("Dialog accepted"), 0);
@@ -157,6 +156,14 @@ void MainWindow::loadStlFile(const QString& fileName)
     newItem->loadSTL(fileName);
 }
 
+void MainWindow::update_name()
+{
+	QModelIndex index = ui->treeView->currentIndex();
+	ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+	selectedPart->set(0, selectedPart->get_Name());
+	updateRender();
+}
+
 
 
 /**
@@ -185,6 +192,14 @@ void MainWindow::updateRenderFromTree(const QModelIndex& index)
 {
     if (index.isValid()) {
         ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+        selectedPart->set(1, "true");
+
+        // Check if the ModelPart is visible
+        if (!selectedPart->get_Visibility()) {
+            selectedPart->set(1, "false"); // Assuming there is a set() method in ModelPart class
+            return;
+        }
+
         vtkActor* actor = selectedPart->getActor(); // Assuming there is a getActor() method in ModelPart class
 
         // Check if the actor is not null
@@ -196,12 +211,6 @@ void MainWindow::updateRenderFromTree(const QModelIndex& index)
         // Get the color from the ModelPart and set it to the actor
         QColor color = selectedPart->get_Color(); // Assuming there is a get_Color() method in ModelPart class
         actor->GetProperty()->SetColor(color.redF(), color.greenF(), color.blueF());
-
-        // Check if the actor is visible
-        if (!actor->GetVisibility()) {
-            renderer->RemoveActor(actor);
-            return;
-        }
 
         renderer->AddActor(actor);
     }
@@ -216,9 +225,9 @@ void MainWindow::updateRenderFromTree(const QModelIndex& index)
     for (int i = 0; i < rows; i++) {
         updateRenderFromTree(partList->index(i, 0, index));
     }
-
-    //resetCamera();
+    resetCamera();
 }
+
 
 /**
  * @brief Resets the camera position.

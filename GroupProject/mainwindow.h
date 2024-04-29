@@ -23,6 +23,7 @@ public:
     void updateRenderFromTree(const QModelIndex& index);
     void resetCamera();
     void loadStlFile(const QString& fileName);
+    void update_name();
 public slots:
     ModelPart* settingsDialog();
     void buttonNotInUse();

@@ -102,7 +102,7 @@ public:
     /** Set visible flag
       * @param isVisible sets visible/non-visible
       */
-    void setVisible(bool isvisible);
+    void setVisible(bool state);
 
     /** Get visible flag
       * @return visible flag as boolean 
@@ -161,8 +161,8 @@ private:
      * want to add you own.
      */
     bool                                        isVisible;          /**< True/false to indicate if should be visible in model rendering */
-    QColor Colour = Qt::GlobalColor::red;
-    QString Name;
+    QColor                                      Colour = Qt::GlobalColor::red;
+    QString                                     Name;
 	/* These are vtk properties that will be used to load/render a model of this part,
 	 * commented out for now but will be used later
 	 */

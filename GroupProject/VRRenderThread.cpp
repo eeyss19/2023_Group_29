@@ -55,9 +55,14 @@ VRRenderThread::~VRRenderThread() {
 
 
 void VRRenderThread::addActorOffline( vtkActor* actor ) {
-
+	// Null check
+	if (actor == nullptr) {
+		std::cout << "Error: actor is null" << std::endl;
+		return;
+	}
 	/* Check to see if render thread is running */
 	if (!this->isRunning()) {
+		
 		double* ac = actor->GetOrigin();
 	
 		/* I have found that these initial transforms will position the FS

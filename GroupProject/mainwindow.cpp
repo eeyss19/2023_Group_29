@@ -109,7 +109,7 @@ void MainWindow::on_actionItem_Options_triggered(){
  * @brief Handles the second button click event.
  */
 void MainWindow::buttonNotInUse(){
-    
+    startVR();
 }
 
 /**
@@ -130,15 +130,23 @@ void MainWindow::handleTreeClicked(){
 
 void MainWindow::startVR()
 {
-     //Create a new VRRenderThred object 
+    // Create a new VRRenderThread object 
     VRRenderThread* vrThread = new VRRenderThread(this);
-    // Loop through all parts in the tree and call getNewActor() on each one, then add the actor to the VRRenderThread
-    for (int i = 0; i < partList->rowCount(QModelIndex()); i++) {
+
+    // Loop through all top level items in the tree
+    for (int i = 0; i < partList->getRootItem()->childCount(); i++) {
         QModelIndex index = partList->index(i, 0, QModelIndex());
-        ModelPart* part = static_cast<ModelPart*>(index.internalPointer());
-        vtkActor* actor = part->getNewActor();
-        vrThread->addActorOffline(actor);
+        ModelPart* topLevelItem = static_cast<ModelPart*>(index.internalPointer());
+
+        // Loop through the children of the top level item
+        for (int j = 0; j < topLevelItem->childCount(); j++) {
+            ModelPart* childItem = topLevelItem->child(j);
+            // Call getNewActor() on each child item and add the actor to the VRRenderThread
+            vtkActor* actor = childItem->getNewActor();
+            vrThread->addActorOffline(actor);
+        }
     }
+
     // Start the VRRenderThread
     vrThread->start();
 }

@@ -28,6 +28,7 @@ public slots:
     void settingsDialog();
     void buttonNotInUse();
     void handleTreeClicked();
+    void startVR();
 signals:
     void statusUpdateMessage(const QString & message, int timeout);
 private slots:

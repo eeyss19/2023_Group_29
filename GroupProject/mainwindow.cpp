@@ -1,3 +1,4 @@
+#include "VRRenderThread.h"
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <QStatusBar>
@@ -10,6 +11,7 @@
 #include <vtkCamera.h>
 #include <vtkProperty.h>
 #include <vtkNamedColors.h>
+// Other includes come after
 
 /**
  * @brief MainWindow constructor.
@@ -124,6 +126,21 @@ void MainWindow::handleTreeClicked(){
     QString text = selectedPart->data(0).toString();
 
     emit statusUpdateMessage(QString("The selected item is: ") + text, 0);
+}
+
+void MainWindow::startVR()
+{
+     //Create a new VRRenderThred object 
+    VRRenderThread* vrThread = new VRRenderThread(this);
+    // Loop through all parts in the tree and call getNewActor() on each one, then add the actor to the VRRenderThread
+    for (int i = 0; i < partList->rowCount(QModelIndex()); i++) {
+        QModelIndex index = partList->index(i, 0, QModelIndex());
+        ModelPart* part = static_cast<ModelPart*>(index.internalPointer());
+        vtkActor* actor = part->getNewActor();
+        vrThread->addActorOffline(actor);
+    }
+    // Start the VRRenderThread
+    vrThread->start();
 }
 
 /**

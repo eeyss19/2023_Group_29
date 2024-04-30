@@ -14,6 +14,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 # Include all of VTK - previous examples specified individual components but this
 # is just likely to cause problems
 find_package( VTK REQUIRED )
+find_package(OpenGL REQUIRED)  # Add this line
 
 
 set(PROJECT_SOURCES
@@ -25,16 +26,14 @@ set(PROJECT_SOURCES
         ModelPartList.h
         ModelPart.cpp
         ModelPartList.cpp
+	    VRRenderThread.cpp
+	    VRRenderThread.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(baseproject
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        ModelPart.h
-        ModelPartList.h
-        ModelPart.cpp
-        ModelPartList.cpp
         CMakeLists.txt
         icons.qrc
         optiondialog.h
@@ -59,7 +58,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(baseproject PRIVATE Qt6::Widgets ${VTK_LIBRARIES} )
+target_link_libraries(baseproject PRIVATE Qt6::Widgets ${VTK_LIBRARIES} ${OPENGL_LIBRARIES})  # Modify this line
 
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

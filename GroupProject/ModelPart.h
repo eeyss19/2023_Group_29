@@ -103,12 +103,6 @@ public:
       * @param isVisible sets visible/non-visible
       */
     void setVisible(bool state);
-
-    /** Get visible flag
-      * @return visible flag as boolean 
-      */
-    bool visible() const;
-
 	
 	/** Load STL file
       * @param fileName
@@ -139,12 +133,12 @@ public:
      */
     bool get_Visibility(void) const;
 
-
-
     /** Return actor
       * @return pointer to default actor for GUI rendering
       */
     vtkSmartPointer<vtkActor> getActor();
+
+    vtkActor* getNewActor();
 
     
     /** Return new actor for use in VR

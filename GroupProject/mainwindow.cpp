@@ -254,8 +254,15 @@ void MainWindow::VRActorsFromTree(const QModelIndex& index)
 
         // Check if the actor is not null
         if (VRactor == nullptr) {
-            qDebug() << "Failed to get actor from model part";
-            return;
+            if (!partList->hasChildren(index) || (index.flags() & Qt::ItemNeverHasChildren)) {
+                return;
+            }
+
+            // Loop through children and add their actors
+            int rows = partList->rowCount(index);
+            for (int i = 0; i < rows; i++) {
+                VRActorsFromTree(partList->index(i, 0, index));
+            }
         }
 
         // Get the color from the ModelPart and set it to the actor
@@ -265,16 +272,19 @@ void MainWindow::VRActorsFromTree(const QModelIndex& index)
     }
 
     // Check to see if this part has any children
+    /*
     if (!partList->hasChildren(index) || (index.flags() & Qt::ItemNeverHasChildren)) {
         return;
     }
-
+    
     // Loop through children and add their actors
     int rows = partList->rowCount(index);
     for (int i = 0; i < rows; i++) {
         VRActorsFromTree(partList->index(i, 0, index));
     }
+    */
     resetCamera();
+    
 }
 
 /**

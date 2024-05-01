@@ -67,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
     renderWindow->AddRenderer(renderer);
     resetCamera();
 
-    VRRenderThread* vrThread = new VRRenderThread();
+    vrThread = new VRRenderThread();
 
 }
 

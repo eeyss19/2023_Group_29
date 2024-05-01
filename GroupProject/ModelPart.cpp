@@ -20,7 +20,7 @@
 
 ModelPart::ModelPart(const QList<QVariant>& data, ModelPart* parent)
     : m_itemData(data), m_parentItem(parent) {
-    file = vtkSmartPointer<vtkSTLReader>::New();
+    file = nullptr;
     mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     actor = vtkSmartPointer<vtkActor>::New();
     /* You probably want to give the item a default colour - Initalized default with colour */
@@ -123,6 +123,7 @@ void ModelPart::setVisible(bool isvisible) {
  */
 void ModelPart::loadSTL(QString fileName) {
     // Load the STL file
+    file = vtkSmartPointer<vtkSTLReader>::New();
     file->SetFileName(fileName.toStdString().c_str());
     file->Update();
 
@@ -189,6 +190,8 @@ vtkActor* ModelPart::getNewActor() {
 * the GUI, it CANNOT also be used to render the part in VR. This means you need
 * to create a second mapper/actor combination for use in VR - that is the role
 * of this function. */
+
+    if (file == nullptr) return nullptr;
      
      
 /* 1. Create new mapper */

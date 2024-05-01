@@ -152,7 +152,7 @@ void MainWindow::on_actionOpen_File_triggered(){
             loadStlFile(path);
         }
     }
-
+    updateRender();
 }
 
 void MainWindow::loadStlFile(const QString& fileName)

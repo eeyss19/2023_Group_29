@@ -163,6 +163,8 @@ private:
 	vtkSmartPointer<vtkSTLReader>               file;               /**< Datafile from which part loaded */
     vtkSmartPointer<vtkMapper>                  mapper;             /**< Mapper for rendering */
     vtkSmartPointer<vtkActor>                   actor;              /**< Actor for rendering */
+    vtkSmartPointer<vtkPolyDataMapper> newMapper;                   /**< Mapper for rendering in VR */
+    vtkSmartPointer<vtkActor> newActor;                              /**< Actor for rendering in VR */
 };  
 
 

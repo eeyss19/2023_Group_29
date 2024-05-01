@@ -66,6 +66,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     renderWindow->AddRenderer(renderer);
     resetCamera();
+
+    VRRenderThread* vrThread = new VRRenderThread();
+
 }
 
 /**
@@ -128,28 +131,6 @@ void MainWindow::handleTreeClicked(){
     emit statusUpdateMessage(QString("The selected item is: ") + text, 0);
 }
 
-void MainWindow::startVR()
-{
-    // Create a new VRRenderThread object 
-    VRRenderThread* vrThread = new VRRenderThread(this);
-
-    // Loop through all top level items in the tree
-    for (int i = 0; i < partList->getRootItem()->childCount(); i++) {
-        QModelIndex index = partList->index(i, 0, QModelIndex());
-        ModelPart* topLevelItem = static_cast<ModelPart*>(index.internalPointer());
-
-        // Loop through the children of the top level item
-        for (int j = 0; j < topLevelItem->childCount(); j++) {
-            ModelPart* childItem = topLevelItem->child(j);
-            // Call getNewActor() on each child item and add the actor to the VRRenderThread
-            vtkActor* actor = childItem->getNewActor();
-            vrThread->addActorOffline(actor);
-        }
-    }
-
-    // Start the VRRenderThread
-    vrThread->start();
-}
 
 /**
  * @brief Handles the "Open File" action trigger.
@@ -202,7 +183,7 @@ void MainWindow::update_name()
 void MainWindow::updateRender()
 {
     renderer->RemoveAllViewProps();
-    updateRenderFromTree(partList->index(0, 0, QModelIndex()));
+    updateRenderFromTree(partList->index(0, 0, QModelIndex())); // Ask about this function and index as well
     renderer->Render();
     renderWindow->Render();
 }
@@ -250,7 +231,51 @@ void MainWindow::updateRenderFromTree(const QModelIndex& index)
     }
     resetCamera();
 }
+void MainWindow::startVR()
+{
+    VRActorsFromTree(partList->index(0, 0, QModelIndex()));
+    vrThread->start();
+}
 
+
+void MainWindow::VRActorsFromTree(const QModelIndex& index)
+{
+    if (index.isValid()) {
+        ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+        selectedPart->set(1, "true");
+
+        // Check if the ModelPart is visible
+        if (!selectedPart->get_Visibility()) {
+            selectedPart->set(1, "false"); // Assuming there is a set() method in ModelPart class
+            return;
+        }
+
+        vtkActor* VRactor = selectedPart->getNewActor(); // Assuming there is a getActor() method in ModelPart class
+
+        // Check if the actor is not null
+        if (VRactor == nullptr) {
+            qDebug() << "Failed to get actor from model part";
+            return;
+        }
+
+        // Get the color from the ModelPart and set it to the actor
+        QColor color = selectedPart->get_Color(); // Assuming there is a get_Color() method in ModelPart class
+        VRactor->GetProperty()->SetColor(color.redF(), color.greenF(), color.blueF());
+        vrThread->addActorOffline(VRactor);
+    }
+
+    // Check to see if this part has any children
+    if (!partList->hasChildren(index) || (index.flags() & Qt::ItemNeverHasChildren)) {
+        return;
+    }
+
+    // Loop through children and add their actors
+    int rows = partList->rowCount(index);
+    for (int i = 0; i < rows; i++) {
+        VRActorsFromTree(partList->index(i, 0, index));
+    }
+    resetCamera();
+}
 
 /**
  * @brief Resets the camera position.
@@ -263,3 +288,10 @@ void MainWindow::resetCamera()
     renderer->ResetCameraClippingRange();
 }
 
+//Give use to other push button(Clear all open dirs and update display)
+//context menu to access model part settings dialog(Also  optn to close specific parts / dirs)
+//open file creates a top level with the name of the directory
+//VR features
+//
+//
+//#file:'optiondialog.h' #file : 'ModelPart.h' #file : 'VRRenderThread.h' #file : 'mainwindow.h' #file : 'mainwindow.cpp' #file : 'optiondialog.cpp' #file : 'ModelPart.cpp' #file : 'ModelPartList.cpp' #file : 'ModelPartList.h' #file : 'VRRenderThread.cpp' #file : 'VRRenderThread.h'

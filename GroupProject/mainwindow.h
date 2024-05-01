@@ -5,6 +5,7 @@
 #include "ModelPartList.h"
 #include <vtkRenderer.h>
 #include <vtkGenericOpenGLRenderWindow.h>
+#include "VRRenderThread.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -21,6 +22,7 @@ public:
     ~MainWindow();
     void updateRender();
     void updateRenderFromTree(const QModelIndex& index);
+    void VRActorsFromTree(const QModelIndex& index);
     void resetCamera();
     void loadStlFile(const QString& fileName);
     void update_name();
@@ -40,7 +42,7 @@ private:
     ModelPartList* partList;
     vtkSmartPointer<vtkRenderer> renderer;
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
-
+    VRRenderThread* vrThread;
 
 };
 #endif // MAINWINDOW_H

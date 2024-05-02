@@ -47,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
 
         /* Create child item */
         ModelPart *childItem = new ModelPart({name, visible});
+        childItem->setName(name);
 
         /* Append to tree top-level */
         rootItem->appendChild(childItem);
@@ -263,6 +264,7 @@ void MainWindow::VRActorsFromTree(const QModelIndex& index)
             for (int i = 0; i < rows; i++) {
                 VRActorsFromTree(partList->index(i, 0, index));
             }
+            return;
         }
 
         // Get the color from the ModelPart and set it to the actor

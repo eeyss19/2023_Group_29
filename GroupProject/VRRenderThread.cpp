@@ -175,7 +175,7 @@ void VRRenderThread::run() {
 		 * interfere with the interator processes and make the simulation unresponsive. If it is too large
 		 * the animations will be jerky. Play with the value to see what works best.
 		 */
-		if (std::chrono::duration_cast <std::chrono::milliseconds> (std::chrono::steady_clock::now() - t_last).count() > 20) {
+		if (std::chrono::duration_cast <std::chrono::milliseconds> (std::chrono::steady_clock::now() - t_last).count() > 100) {
 
 			/* Do things that might need doing ... */
 			vtkActorCollection* actorList = renderer->GetActors();

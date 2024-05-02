@@ -271,18 +271,6 @@ void MainWindow::VRActorsFromTree(const QModelIndex& index)
         vrThread->addActorOffline(VRactor);
     }
 
-    // Check to see if this part has any children
-    /*
-    if (!partList->hasChildren(index) || (index.flags() & Qt::ItemNeverHasChildren)) {
-        return;
-    }
-    
-    // Loop through children and add their actors
-    int rows = partList->rowCount(index);
-    for (int i = 0; i < rows; i++) {
-        VRActorsFromTree(partList->index(i, 0, index));
-    }
-    */
     resetCamera();
     
 }
@@ -298,10 +286,35 @@ void MainWindow::resetCamera()
     renderer->ResetCameraClippingRange();
 }
 
-//Give use to other push button(Clear all open dirs and update display)
-//context menu to access model part settings dialog(Also  optn to close specific parts / dirs)
-//open file creates a top level with the name of the directory
-//VR features
+// Clear all parts functionality
 //
-//
-//#file:'optiondialog.h' #file : 'ModelPart.h' #file : 'VRRenderThread.h' #file : 'mainwindow.h' #file : 'mainwindow.cpp' #file : 'optiondialog.cpp' #file : 'ModelPart.cpp' #file : 'ModelPartList.cpp' #file : 'ModelPartList.h' #file : 'VRRenderThread.cpp' #file : 'VRRenderThread.h'
+// Context menu to access model part settings dialog (Also  optn to close specific parts / dirs)
+// 
+// Open file creates a top level with the name of the directory
+// 
+// Rotation in VR
+// 
+// Add part at runtime?
+// 
+// Stop VR
+// 
+// VTK Actor has functional visibility but not the VR actor?
+// 
+// Demonstrate two filters working.These can be applied to parts of the model independently(e.g.only to
+// a wheel), and can be applied in any combination.
+// 
+// 
+// 
+// youu can change things in the GUI and the effect is seen in VR, while it is running.E.g.changing colour,
+// visible status, add an extra STL file, etc.
+// 
+// Interaction with model using VR controllers.The ideal case is that every single sub assembly from the
+// Level2 model can be manipulated independently, but this may not be feasible.How interactive can you
+// make the experience ? This could be using code, or by additional partitioning of the CAD model, or both.
+// 
+// Add some animation : e.g.the rotation hinted at in the renderThread class, or something more advanced ?
+// 
+// Virtual environment - can you add a floor, scenery, etc either manually or with a Skybox.
+// 
+// #file:'mainwindow.cpp' #file:'mainwindow.h' #file:'ModelPart.cpp' #file:'ModelPart.h' #file:'ModelPartList.cpp' #file:'ModelPartList.h' #file:'VRRenderThread.cpp' #file:'VRRenderThread.h' #file:'optiondialog.cpp' #file:'optiondialog.h' 
+

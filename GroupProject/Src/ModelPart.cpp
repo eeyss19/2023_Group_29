@@ -104,6 +104,7 @@ int ModelPart::row() const {
  */
 void ModelPart::setColour(QColor Clr) {
     Colour = Clr;
+
 }
 
 /**
@@ -184,14 +185,14 @@ vtkSmartPointer<vtkActor> ModelPart::getActor() {
 
 vtkActor* ModelPart::getNewActor() {
 
-    if (file == nullptr) {
-        qDebug() << "ERROR: nothing in file reader";
-        return nullptr;
-    }                                                   // NULL check before assignment, potential fix?
     pd = vtkSmartPointer<vtkPolyData>::New();
     pd->DeepCopy(mapper->GetInputDataObject(0, 0));
     /* 1. Create new mapper */
     vrMapper = vtkSmartPointer<vtkDataSetMapper>::New();
+    if (file == nullptr) {
+        qDebug() << "ERROR: nothing in file reader";
+        return nullptr;
+    }
     vrMapper->SetInputDataObject(pd);
     vrActor = vtkActor::New();
     vrActor->SetMapper(vrMapper);

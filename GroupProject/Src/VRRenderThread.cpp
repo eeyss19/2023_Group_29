@@ -205,9 +205,5 @@ void VRRenderThread::run() {
 	}
 }
 
-void VRRenderThread::stop() {
-	/* Set the endRender flag to true, this will cause the VR thread to exit */
-	endRender = true;
-}
 
 

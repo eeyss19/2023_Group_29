@@ -11,8 +11,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+# Include all of VTK - previous examples specified individual components but this
+# is just likely to cause problems
 find_package( VTK REQUIRED )
-find_package( OpenGL REQUIRED )  
+find_package(OpenGL REQUIRED)  # Add this line
+
 
 set(PROJECT_SOURCES
         main.cpp
@@ -23,8 +26,8 @@ set(PROJECT_SOURCES
         ModelPartList.h
         ModelPart.cpp
         ModelPartList.cpp
-	VRRenderThread.cpp
-	VRRenderThread.h
+	    VRRenderThread.cpp
+	    VRRenderThread.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

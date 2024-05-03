@@ -19,7 +19,6 @@ OptionDialog::OptionDialog(QWidget *parent)
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &OptionDialog::saveSettings);
     connect(this, &OptionDialog::settingsSaved, static_cast<MainWindow*>(parent), &MainWindow::updateRender);
     connect(this, &OptionDialog::settingsSaved, static_cast<MainWindow*>(parent), &MainWindow::update_name);
-    connect(this, &OptionDialog::settingsSaved, static_cast<MainWindow*>(parent), &MainWindow::updateVRthread);
 
 }
 

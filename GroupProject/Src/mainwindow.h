@@ -24,7 +24,6 @@ public:
     void updateRenderFromTree(const QModelIndex& index);
     void VRActorsFromTree(const QModelIndex& index);
     void resetCamera();
-    void updateVRthread();
     void loadStlFile(const QString& fileName);
     void update_name();
 public slots:

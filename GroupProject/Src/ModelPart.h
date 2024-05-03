@@ -155,7 +155,7 @@ private:
      * want to add you own.
      */
     bool                                        isVisible;          /**< True/false to indicate if should be visible in model rendering */
-    QColor                                      Colour = Qt::GlobalColor::white;
+    QColor                                      Colour = Qt::GlobalColor::red;
     QString                                     Name;
 	/* These are vtk properties that will be used to load/render a model of this part,
 	 * commented out for now but will be used later

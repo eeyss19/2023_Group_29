@@ -11,8 +11,6 @@
 #include <vtkCamera.h>
 #include <vtkProperty.h>
 #include <vtkNamedColors.h>
-#include <vtkLight.h>
-
 // Other includes come after
 
 /**
@@ -30,18 +28,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButton_2, &QPushButton::released, this, &MainWindow::buttonNotInUse);
     connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::handleTreeClicked);
     connect(this, &MainWindow::statusUpdateMessage, ui->statusbar, &QStatusBar::showMessage);
-
-    vtkSmartPointer<vtkLight> light = vtkSmartPointer<vtkLight>::New();
-    light->SetLightTypeToSceneLight();
-    light->SetPosition(0, 0, 0);
-    light->SetPositional(true);
-    light->SetConeAngle(10);
-    light->SetFocalPoint(0, 0, 0);
-    light->SetIntensity(0.5); // Reduce the intensity
-    light->SetDiffuseColor(0.8, 0.8, 0.8); // Make the light less bright
-    light->SetAmbientColor(0.2, 0.2, 0.2); // Reduce the ambient light
-    light->SetSpecularColor(0.8, 0.8, 0.8); // Reduce the specular light
-
     
     /* Create / allocate the ModelList */
     this->partList = new ModelPartList("PartsList");
@@ -76,10 +62,9 @@ MainWindow::MainWindow(QWidget *parent)
     /* Add a renderer */
     vtkNew<vtkNamedColors> colors;
     renderer = vtkSmartPointer<vtkRenderer>::New();
-    renderer->SetBackground(colors->GetColor3d("black").GetData()); // Set background color to 
-    //renderer->AddLight(light);                                    // Doesn't working, ModelParts appear black and not visible
+    renderer->SetBackground(colors->GetColor3d("white").GetData()); // Set background color to white
     renderWindow->AddRenderer(renderer);
-    
+
     renderWindow->AddRenderer(renderer);
     resetCamera();
 
@@ -120,8 +105,7 @@ void MainWindow::settingsDialog(){
  * @brief Handles the "Item Options" action trigger.
  */
 void MainWindow::on_actionItem_Options_triggered(){
-    //settingsDialog();
-    vrThread->stop();
+    	settingsDialog();
 }
 
 
@@ -191,7 +175,8 @@ void MainWindow::update_name()
 {
 	QModelIndex index = ui->treeView->currentIndex();
 	ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
-    selectedPart->set(0, selectedPart->get_Name());
+	selectedPart->set(0, selectedPart->get_Name());
+	updateRender();
 }
 
 /**
@@ -305,12 +290,6 @@ void MainWindow::resetCamera()
     renderer->ResetCameraClippingRange();
 }
 
-void MainWindow::updateVRthread()
-{
-	// 
-    
-
-}
 // 
 // Open file creates a top level with the name of the directory
 // 

@@ -27,9 +27,10 @@ public:
     void updateVRthread();
     void loadStlFile(const QString& fileName);
     void update_name();
+    
 public slots:
     void settingsDialog();
-    void buttonNotInUse();
+    void vrButton();
     void handleTreeClicked();
     void startVR();
 signals:
@@ -43,7 +44,7 @@ private:
     ModelPartList* partList;
     vtkSmartPointer<vtkRenderer> renderer;
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
-    VRRenderThread* vrThread;
+    VRRenderThread* vrThread = nullptr;
 
 };
 #endif // MAINWINDOW_H

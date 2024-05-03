@@ -76,6 +76,10 @@ void VRRenderThread::addActorOffline( vtkActor* actor ) {
 }
 
 
+void VRRenderThread::removeAllActors() {
+	actors->RemoveAllItems();
+}
+
 
 void VRRenderThread::issueCommand( int cmd, double value ) {
 
@@ -207,7 +211,8 @@ void VRRenderThread::run() {
 
 void VRRenderThread::stop() {
 	/* Set the endRender flag to true, this will cause the VR thread to exit */
-	endRender = true;
+	if(this->isRunning())
+		endRender = true;
 }
 
 

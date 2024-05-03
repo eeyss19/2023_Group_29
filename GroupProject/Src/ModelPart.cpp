@@ -103,6 +103,14 @@ int ModelPart::row() const {
  * @param Clr The color to set for the model part.
  */
 void ModelPart::setColour(QColor Clr) {
+    if ((Clr != Colour) && (this->getTopLevelBool())){
+        Colour = Clr;
+        // Set the colour of all children to the same colour
+        for (int i = 0; i < m_childItems.size(); i++) {
+			m_childItems[i]->setColour(Clr);
+		}
+        return;
+	}
     Colour = Clr;
 }
 
@@ -199,4 +207,15 @@ vtkActor* ModelPart::getNewActor() {
     /* The new vtkActor pointer must be returned here */
     return vrActor;
 }
+
+void ModelPart::setTopLevelBool(bool topLevelBool)
+{
+	topLevel = topLevelBool;
+}
+
+bool ModelPart::getTopLevelBool()
+{
+    return topLevel;
+}
+
 

@@ -59,6 +59,8 @@ public:
      */
     void addActorOffline(vtkActor* actor);
 
+    void removeAllActors();
+
 
     /** This allows commands to be issued to the VR thread in a thread safe way. 
       * Function will set variables within the class to indicate the type of

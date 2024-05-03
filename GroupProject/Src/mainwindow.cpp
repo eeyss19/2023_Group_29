@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->treeView->addAction(ui->actionItem_Options);
 
     connect(ui->pushButton, &QPushButton::released , this, &MainWindow::settingsDialog);
-    connect(ui->pushButton_2, &QPushButton::released, this, &MainWindow::buttonNotInUse);
+    connect(ui->pushButton_2, &QPushButton::released, this, &MainWindow::vrButton);
     connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::handleTreeClicked);
     connect(this, &MainWindow::statusUpdateMessage, ui->statusbar, &QStatusBar::showMessage);
 
@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
         /* Create child item */
         ModelPart *childItem = new ModelPart({name, visible});
         childItem->setName(name);
+        childItem->setTopLevelBool(true);
 
         /* Append to tree top-level */
         rootItem->appendChild(childItem);
@@ -83,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
     renderWindow->AddRenderer(renderer);
     resetCamera();
 
-    vrThread = new VRRenderThread();
+    
 
 }
 
@@ -120,15 +121,16 @@ void MainWindow::settingsDialog(){
  * @brief Handles the "Item Options" action trigger.
  */
 void MainWindow::on_actionItem_Options_triggered(){
-    //settingsDialog();
-    vrThread->stop();
+    settingsDialog();
+    //vrThread->stop();
 }
 
 
 /**
  * @brief Handles the second button click event.
  */
-void MainWindow::buttonNotInUse(){
+void MainWindow::vrButton(){
+    vrThread = new VRRenderThread();
     startVR();
 }
 
@@ -221,7 +223,7 @@ void MainWindow::updateRenderFromTree(const QModelIndex& index)
             selectedPart->set(1, "false"); // Assuming there is a set() method in ModelPart class
             return;
         }
-
+        
         vtkActor* actor = selectedPart->getActor(); // Assuming there is a getActor() method in ModelPart class
 
         // Check if the actor is not null
@@ -249,6 +251,7 @@ void MainWindow::updateRenderFromTree(const QModelIndex& index)
     }
     resetCamera();
 }
+
 void MainWindow::startVR()
 {
     VRActorsFromTree(partList->index(0, 0, QModelIndex()));
@@ -307,34 +310,35 @@ void MainWindow::resetCamera()
 
 void MainWindow::updateVRthread()
 {
-	// 
-    
-
+    vrThread->stop();
+    // Check that the vrThread is initialized
+    if (vrThread == nullptr) {
+		qDebug() << "VR Thread not initialized";
+		return;
+	}
+	// Remove all actors from vrThread
+    vrThread->removeAllActors();
+    VRActorsFromTree(partList->index(0, 0, QModelIndex()));
+    vrThread->start();
 }
 // 
-// Open file creates a top level with the name of the directory
-// 
-// Rotation in VR
-// 
-// Add part at runtime?
-// 
-// Stop VR
-// 
+// Open file creates a top level with the name of the 
+// Rotation in 
+// Add part at runtime
+// Stop 
 // VTK Actor has functional visibility but not the VR actor?
 // 
 // Demonstrate two filters working.These can be applied to parts of the model independently (e.g.only to
 // a wheel), and can be applied in any combination.
 //
-// youu can change things in the GUI and the effect is seen in VR, while it is running.E.g.changing colour,
+// you can change things in the GUI and the effect is seen in VR, while it is running.E.g.changing colour,
 // visible status, add an extra STL file, etc.
 // 
 // Interaction with model using VR controllers.The ideal case is that every single sub assembly from the
 // Level2 model can be manipulated independently, but this may not be feasible.How interactive can you
 // make the experience ? This could be using code, or by additional partitioning of the CAD model, or both.
 // 
-// Add some animation : e.g.the rotation hinted at in the renderThread class, or something more advanced ?
-// 
-// Virtual environment - can you add a floor, scenery, etc either manually or with a Skybox.
-// 
+// Add some animation : e.g.the rotation hinted at in the renderThread class, or something more advanced 
+// Virtual environment - can you add a floor, scenery, etc either manually or with a Skybox
 // #file:'mainwindow.cpp' #file:'mainwindow.h' #file:'ModelPart.cpp' #file:'ModelPart.h' #file:'ModelPartList.cpp' #file:'ModelPartList.h' #file:'VRRenderThread.cpp' #file:'VRRenderThread.h' #file:'optiondialog.cpp' #file:'optiondialog.h' 
 

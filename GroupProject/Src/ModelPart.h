@@ -138,18 +138,22 @@ public:
       */
     vtkSmartPointer<vtkActor> getActor();
 
-    vtkActor* getNewActor();
-
-    
     /** Return new actor for use in VR
       * @return pointer to new actor
       */
-    //vtkActor* getNewActor();
+    vtkActor* getNewActor();
+
+    void setTopLevelBool(bool topLevelBool);
+
+    bool getTopLevelBool();
+    
+    bool getColourChanged();
     
 private:
     QList<ModelPart*>                           m_childItems;       /**< List (array) of child items */
     QList<QVariant>                             m_itemData;         /**< List (array of column data for item */
     ModelPart*                                  m_parentItem;       /**< Pointer to parent */
+    bool topLevel = false;                      /**< True if this is a top level item */
 
     /* These are some typical properties that I think the part will need, you might
      * want to add you own.
@@ -166,6 +170,7 @@ private:
     vtkActor*                                   vrActor;                        /**< Actor for rendering in VR */
     vtkSmartPointer<vtkPolyData>                pd;
     vtkSmartPointer<vtkMapper>                  vrMapper;
+
 
 
 };  

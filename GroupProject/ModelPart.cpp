@@ -185,16 +185,16 @@ vtkSmartPointer<vtkActor> ModelPart::getActor() {
 
 vtkActor* ModelPart::getNewActor() {
 
-    vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
+    pd = vtkSmartPointer<vtkPolyData>::New();
     pd->DeepCopy(mapper->GetInputDataObject(0, 0));
     /* 1. Create new mapper */
-    vtkSmartPointer<vtkMapper>vrMapper = vtkSmartPointer<vtkDataSetMapper>::New();
+    vrMapper = vtkSmartPointer<vtkDataSetMapper>::New();
     if (file == nullptr) {
         qDebug() << "ERROR: nothing in file reader";
         return nullptr;
     }
     vrMapper->SetInputDataObject(pd);
-    vtkActor* vrActor = vtkActor::New();
+    vrActor = vtkActor::New();
     vrActor->SetMapper(vrMapper);
     vrActor->SetProperty(actor->GetProperty());
     /* The new vtkActor pointer must be returned here */

@@ -116,7 +116,7 @@ void VRRenderThread::run() {
 
 	// Set the background color.
 	std::array<unsigned char, 4> bkg{ {26, 51, 102, 255} };
-	colors->SetColor("BkgColor", bkg.data());
+	colors->SetColor("BkgColor", bkg.data());	
 	
 	// The renderer generates the image
 	// which is then displayed on the render window.

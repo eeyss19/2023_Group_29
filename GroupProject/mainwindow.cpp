@@ -164,6 +164,7 @@ void MainWindow::loadStlFile(const QString& fileName)
     QModelIndex index = ui->treeView->currentIndex();
     ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
     ModelPart* newItem = new ModelPart({ fileName, selectedPart->get_Visibility() });
+    newItem->setName(fileName);
     selectedPart->appendChild(newItem);
 
     // Call the loadSTL() function of the newly created item to ask it to load from the STL file.
@@ -188,6 +189,7 @@ void MainWindow::updateRender()
     renderer->Render();
     renderWindow->Render();
 }
+
 
 /**
  * @brief Updates the render window from the model tree.
@@ -288,9 +290,6 @@ void MainWindow::resetCamera()
     renderer->ResetCameraClippingRange();
 }
 
-// Clear all parts functionality
-//
-// Context menu to access model part settings dialog (Also  optn to close specific parts / dirs)
 // 
 // Open file creates a top level with the name of the directory
 // 
@@ -302,11 +301,9 @@ void MainWindow::resetCamera()
 // 
 // VTK Actor has functional visibility but not the VR actor?
 // 
-// Demonstrate two filters working.These can be applied to parts of the model independently(e.g.only to
+// Demonstrate two filters working.These can be applied to parts of the model independently (e.g.only to
 // a wheel), and can be applied in any combination.
-// 
-// 
-// 
+//
 // youu can change things in the GUI and the effect is seen in VR, while it is running.E.g.changing colour,
 // visible status, add an extra STL file, etc.
 // 

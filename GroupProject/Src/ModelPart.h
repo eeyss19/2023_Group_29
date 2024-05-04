@@ -19,6 +19,7 @@
 #include <vtkActor.h>
 #include <vtkSTLReader.h>
 #include <vtkColor.h>
+#include <QVector3D>
 
 /* VTK headers - will be needed when VTK used in next worksheet,
  * commented out for now
@@ -119,24 +120,24 @@ public:
      * Get the color of the ModelPart.
      * @return the color of the ModelPart as a QColor object.
      */
-    QColor get_Color(void) const;
+    const QColor getColor(void);
 
     /**
      * Get the name of the ModelPart.
      * @return the name of the ModelPart as a QString.
      */
-    const QString get_Name(void);
+    const QString getName(void);
 
     /**
      * Get the visibility status of the ModelPart.
      * @return the visibility status of the ModelPart as a boolean. True if the ModelPart is visible, false otherwise.
      */
-    bool get_Visibility(void) const;
+    const bool getVisibility(void);
 
     /** Return actor
       * @return pointer to default actor for GUI rendering
       */
-    vtkSmartPointer<vtkActor> getActor();
+    const vtkSmartPointer<vtkActor> getActor();
 
     /** Return new actor for use in VR
       * @return pointer to new actor
@@ -145,31 +146,35 @@ public:
 
     void setTopLevelBool(bool topLevelBool);
 
-    bool getTopLevelBool();
-    
-    bool getColourChanged();
+    bool getTopLevelBool() const;
+
+    QVector3D getOriginalPosition() const;
+
+    void setPosition(const QVector3D& newPosition);
+
+    void resetToOriginalPosition();
+
+    void resetPosition();
     
 private:
     QList<ModelPart*>                           m_childItems;       /**< List (array) of child items */
     QList<QVariant>                             m_itemData;         /**< List (array of column data for item */
     ModelPart*                                  m_parentItem;       /**< Pointer to parent */
-    bool topLevel = false;                      /**< True if this is a top level item */
+    bool                                        topLevel = false;   /**< True if this is a top level item */
 
-    /* These are some typical properties that I think the part will need, you might
-     * want to add you own.
-     */
     bool                                        isVisible;          /**< True/false to indicate if should be visible in model rendering */
-    QColor                                      Colour = Qt::GlobalColor::white;
-    QString                                     Name;
-	/* These are vtk properties that will be used to load/render a model of this part,
-	 * commented out for now but will be used later
-	 */
+    QColor                       Colour = Qt::GlobalColor::white;   /**< Colour of the part */
+    QString                                     Name;               /**< Name of the part */ 
+	
 	vtkSmartPointer<vtkSTLReader>               file;               /**< Datafile from which part loaded */
     vtkSmartPointer<vtkMapper>                  mapper;             /**< Mapper for rendering */
     vtkSmartPointer<vtkActor>                   actor;              /**< Actor for rendering */
-    vtkActor*                                   vrActor;                        /**< Actor for rendering in VR */
-    vtkSmartPointer<vtkPolyData>                pd;
-    vtkSmartPointer<vtkMapper>                  vrMapper;
+    vtkActor*                                   vrActor;            /**< Actor for rendering in VR */
+    vtkSmartPointer<vtkPolyData>                pd;                 /**< Polydata for  VR rendering */
+    vtkSmartPointer<vtkMapper>                  vrMapper;           /**< Mapper for VR rendering */
+
+    QVector3D                                   originalPosition;   /*Member Variable to store original position*/
+    QVector3D                                   position;           /*Member Variable to store current position*/
 
 
 

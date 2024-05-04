@@ -11,8 +11,8 @@
 #include <vtkCamera.h>
 #include <vtkProperty.h>
 #include <vtkNamedColors.h>
-#include <vtkLight.h>
-
+#include <QPixMap>
+#include <qmessagebox.h>
 // Other includes come after
 
 /**
@@ -25,24 +25,29 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->treeView->addAction(ui->actionItem_Options);
+    disconnect(ui->pushButton_5, 0, this, 0);
+    disconnect(ui->pushButton_6, 0, this, 0);
+
+    // Now connect the QPushButton::clicked signal to the on_pushButton_5_clicked() slot
+    connect(ui->pushButton_5, &QPushButton::clicked, this, &MainWindow::on_pushButton_5_clicked);
+    connect(ui->pushButton_6, &QPushButton::clicked, this, &MainWindow::on_pushButton_6_clicked);
 
     connect(ui->pushButton, &QPushButton::released , this, &MainWindow::settingsDialog);
-    connect(ui->pushButton_2, &QPushButton::released, this, &MainWindow::vrButton);
+    connect(ui->pushButton_2, &QPushButton::released, this, &MainWindow::on_pushButton_2_clicked);
+    connect(ui->pushButton_3, &QPushButton::released, this, &MainWindow::on_pushButton_3_clicked);
+    connect(ui->pushButton_4, &QPushButton::released, this, &MainWindow::on_pushButton_4_clicked);
     connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::handleTreeClicked);
     connect(this, &MainWindow::statusUpdateMessage, ui->statusbar, &QStatusBar::showMessage);
-
-    vtkSmartPointer<vtkLight> light = vtkSmartPointer<vtkLight>::New();
-    light->SetLightTypeToSceneLight();
-    light->SetPosition(0, 0, 0);
-    light->SetPositional(true);
-    light->SetConeAngle(10);
-    light->SetFocalPoint(0, 0, 0);
-    light->SetIntensity(0.5); // Reduce the intensity
-    light->SetDiffuseColor(0.8, 0.8, 0.8); // Make the light less bright
-    light->SetAmbientColor(0.2, 0.2, 0.2); // Reduce the ambient light
-    light->SetSpecularColor(0.8, 0.8, 0.8); // Reduce the specular light
-
     
+
+    //Button Colors
+    ui->pushButton->setStyleSheet("background-color: black; color: white; font-size: 12px; font-weight: bold;");
+    ui->pushButton_2->setStyleSheet("background-color: black; color: white; font-size: 12px; font-weight: bold;");
+    ui->pushButton_3->setStyleSheet("background-color: green; color: white; font-size: 14px; font-weight: bold;");
+    ui->pushButton_4->setStyleSheet("background-color: red; color: white; font-size: 14px; font-weight: bold;");
+    ui->pushButton_5->setStyleSheet("background-color: purple; color: white; font-size: 12px; font-weight: bold;");
+    ui->pushButton_6->setStyleSheet("background-color: purple; color: white; font-size: 12px; font-weight: bold;");
+
     /* Create / allocate the ModelList */
     this->partList = new ModelPartList("PartsList");
 
@@ -77,10 +82,7 @@ MainWindow::MainWindow(QWidget *parent)
     /* Add a renderer */
     vtkNew<vtkNamedColors> colors;
     renderer = vtkSmartPointer<vtkRenderer>::New();
-    renderer->SetBackground(colors->GetColor3d("black").GetData()); // Set background color to 
-    //renderer->AddLight(light);                                    // Doesn't working, ModelParts appear black and not visible
-    renderWindow->AddRenderer(renderer);
-    
+    renderer->SetBackground(colors->GetColor3d("white").GetData()); // Set background color to white
     renderWindow->AddRenderer(renderer);
     resetCamera();
 
@@ -122,10 +124,22 @@ void MainWindow::settingsDialog(){
  */
 void MainWindow::on_actionItem_Options_triggered(){
     settingsDialog();
-    //vrThread->stop();
 }
 
-
+/**
+ * @brief Handles the second button click event.
+ */
+void MainWindow::on_pushButton_2_clicked()
+{
+    QModelIndex index = ui->treeView->currentIndex();
+    ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+    if (selectedPart) {
+        // Reset the position of the selected part to its original position
+        selectedPart->resetToOriginalPosition();
+        updateRender(); // Update the render window to reflect the changes
+        resetCamera(); // Reset the camera
+    }
+}
 /**
  * @brief Handles the second button click event.
  */
@@ -181,19 +195,22 @@ void MainWindow::loadStlFile(const QString& fileName)
     // Use the fileName to open a new child item in the tree
     QModelIndex index = ui->treeView->currentIndex();
     ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
-    ModelPart* newItem = new ModelPart({ fileName, selectedPart->get_Visibility() });
+    ModelPart* newItem = new ModelPart({ fileName, selectedPart->getVisibility() });
     newItem->setName(fileName);
     selectedPart->appendChild(newItem);
 
     // Call the loadSTL() function of the newly created item to ask it to load from the STL file.
     newItem->loadSTL(fileName);
+    resetCamera();
+    updateRender();
 }
 
 void MainWindow::update_name()
 {
 	QModelIndex index = ui->treeView->currentIndex();
 	ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
-    selectedPart->set(0, selectedPart->get_Name());
+	selectedPart->set(0, selectedPart->getName());
+	updateRender();
 }
 
 /**
@@ -219,7 +236,7 @@ void MainWindow::updateRenderFromTree(const QModelIndex& index)
         selectedPart->set(1, "true");
 
         // Check if the ModelPart is visible
-        if (!selectedPart->get_Visibility()) {
+        if (!selectedPart->getVisibility()) {
             selectedPart->set(1, "false"); // Assuming there is a set() method in ModelPart class
             return;
         }
@@ -233,7 +250,7 @@ void MainWindow::updateRenderFromTree(const QModelIndex& index)
         }
 
         // Get the color from the ModelPart and set it to the actor
-        QColor color = selectedPart->get_Color(); // Assuming there is a get_Color() method in ModelPart class
+        QColor color = selectedPart->getColor(); // Assuming there is a get_Color() method in ModelPart class
         actor->GetProperty()->SetColor(color.redF(), color.greenF(), color.blueF());
 
         renderer->AddActor(actor);
@@ -252,10 +269,132 @@ void MainWindow::updateRenderFromTree(const QModelIndex& index)
     resetCamera();
 }
 
+/**
+ * @brief Resets the camera position.
+ */
+void MainWindow::resetCamera() {
+    renderer->ResetCamera(); // Adjust as needed to fit your scene
+    renderWindow->Render();
+}
+
 void MainWindow::startVR()
 {
     VRActorsFromTree(partList->index(0, 0, QModelIndex()));
     vrThread->start();
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{ /*
+    if (vrRenderThread && vrRenderThread->isRunning()) {
+        vrRenderThread->issueCommand(VRRenderThread::END_RENDER, 0);
+        vrRenderThread->wait(); // Wait for the thread to finish
+        delete vrRenderThread; // Clean up
+        vrRenderThread = nullptr; // Reset pointer
+    }*/
+}
+
+void MainWindow::on_pushButton_4_clicked() {/*
+    if (!vrRenderThread || vrRenderThread->isRunning()) {
+        return; // VR is already running or no instance available
+    }
+
+    // Eg: adding an actor
+    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+    // ... set up the actor ...
+    vrRenderThread->addActorOffline(actor);
+
+    // Start the VR thread
+    vrRenderThread->start();
+*/
+}
+
+void MainWindow::on_pushButton_5_clicked()
+{
+    QPixmap originalPixmap = this->grab();
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Screenshot"),
+        QDir::currentPath(),
+        tr("Images (*.png *.xpm *.jpg)"));
+    if (!fileName.isEmpty())
+        originalPixmap.save(fileName);
+
+}
+
+
+void MainWindow::on_pushButton_6_clicked()
+{
+    QColor color = QColorDialog::getColor(Qt::white, this, "Choose Background Color");
+    if (color.isValid()) {
+        double r = color.redF();
+        double g = color.greenF();
+        double b = color.blueF();
+        renderer->SetBackground(r, g, b);
+        renderWindow->Render();
+    }
+}
+
+
+void MainWindow::on_actionSave_Screenshot_triggered()
+{
+    on_pushButton_5_clicked();
+}
+
+
+void MainWindow::on_actionStart_VR_triggered()
+{
+    on_pushButton_3_clicked();
+
+}
+
+
+void MainWindow::on_actionStop_VR_triggered()
+{
+    on_pushButton_4_clicked();
+
+}
+
+
+void MainWindow::on_actionChange_Background_triggered()
+{
+    on_pushButton_6_clicked();
+
+}
+
+
+void MainWindow::on_actionChange_App_Color_triggered()
+{
+    QColor color = QColorDialog::getColor(Qt::white, this, "Choose Color");
+    if (color.isValid()) {
+        QString colorStyle = QString("background-color: %1").arg(color.name());
+        this->setStyleSheet(colorStyle);
+
+        // Set a specific style for the buttons and text
+        ui->pushButton->setStyleSheet("background-color: none; color: black; font-size: 14px; font-weight: bold;");
+        ui->pushButton_2->setStyleSheet("background-color: none; color: black; font-size: 14px; font-weight: bold;");
+        ui->pushButton_3->setStyleSheet("background-color: none; color: black; font-size: 14px; font-weight: bold;");
+        ui->pushButton_4->setStyleSheet("background-color: none; color: black; font-size: 14px; font-weight: bold;");
+        ui->pushButton_5->setStyleSheet("background-color: none; color: black; font-size: 14px; font-weight: bold;");
+        ui->pushButton_5->setStyleSheet("background-color: none; color: black; font-size: 14px; font-weight: bold;");
+        ui->pushButton_6->setStyleSheet("background-color: none; color: black; font-size: 14px; font-weight: bold;");
+    }
+}
+
+
+void MainWindow::on_actionHow_to_Use_triggered()
+{
+    QMessageBox::information(this, tr("How to Use"),
+        tr("Here are the instructions on how to use the app:\n\n"
+            "1. Load STL File: ...\n"
+            "2. Reset View: ...\n"
+            "3. Open VR: ...\n"
+            "4. Close VR: ...\n"
+            "5. Take Screenshot: ...\n"
+            "6. Change Background Color: ..."));
+}
+
+
+void MainWindow::on_actionEdit_Properties_triggered()
+{
+    settingsDialog();
 }
 
 
@@ -266,7 +405,7 @@ void MainWindow::VRActorsFromTree(const QModelIndex& index)
         selectedPart->set(1, "true");
 
         // Check if the ModelPart is visible
-        if (!selectedPart->get_Visibility()) {
+        if (!selectedPart->getVisibility()) {
             selectedPart->set(1, "false"); // Assuming there is a set() method in ModelPart class
             return;
         }
@@ -288,7 +427,7 @@ void MainWindow::VRActorsFromTree(const QModelIndex& index)
         }
 
         // Get the color from the ModelPart and set it to the actor
-        QColor color = selectedPart->get_Color(); // Assuming there is a get_Color() method in ModelPart class
+        QColor color = selectedPart->getColor(); // Assuming there is a get_Color() method in ModelPart class
         VRactor->GetProperty()->SetColor(color.redF(), color.greenF(), color.blueF());
         vrThread->addActorOffline(VRactor);
     }
@@ -297,30 +436,6 @@ void MainWindow::VRActorsFromTree(const QModelIndex& index)
     
 }
 
-/**
- * @brief Resets the camera position.
- */
-void MainWindow::resetCamera()
-{
-    renderer->ResetCamera();
-    renderer->GetActiveCamera()->Azimuth(150);
-    renderer->GetActiveCamera()->Elevation(30);
-    renderer->ResetCameraClippingRange();
-}
-
-void MainWindow::updateVRthread()
-{
-    vrThread->stop();
-    // Check that the vrThread is initialized
-    if (vrThread == nullptr) {
-		qDebug() << "VR Thread not initialized";
-		return;
-	}
-	// Remove all actors from vrThread
-    vrThread->removeAllActors();
-    VRActorsFromTree(partList->index(0, 0, QModelIndex()));
-    vrThread->start();
-}
 // 
 // Open file creates a top level with the name of the 
 // Rotation in 

@@ -17,9 +17,11 @@
 #include <vtkSmartPointer.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
+#include <QVector3D>
+
 
 ModelPart::ModelPart(const QList<QVariant>& data, ModelPart* parent)
-    : m_itemData(data), m_parentItem(parent) {
+    : m_itemData(data), m_parentItem(parent), originalPosition(QVector3D(0, 0, 0)) {
     file = nullptr;
     mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     actor = vtkSmartPointer<vtkActor>::New();
@@ -96,6 +98,36 @@ int ModelPart::row() const {
         return m_parentItem->m_childItems.indexOf(const_cast<ModelPart*>(this));
     return 0;
 }
+/**
+ * @brief Loads an STL file for the model part.
+ *
+ * @param fileName The name of the STL file to load.
+ */
+void ModelPart::loadSTL(QString fileName) {
+    // Load the STL file
+    file = vtkSmartPointer<vtkSTLReader>::New();
+    file->SetFileName(fileName.toStdString().c_str());
+    file->Update();
+
+    // Check if the file is loaded correctly
+    if (file->GetOutput() == nullptr) {
+        qDebug() << "Failed to load STL file: " << fileName;
+        return;
+    }
+
+    // Initialize the part's mapper and actor
+    mapper->SetInputConnection(file->GetOutputPort());
+    actor->SetMapper(mapper);
+
+    // Set the original position now that the STL is loaded
+    if (originalPosition == QVector3D(0, 0, 0)) {
+        originalPosition = QVector3D(actor->GetPosition()[0], actor->GetPosition()[1], actor->GetPosition()[2]);
+    }
+
+    // Update the VTK actor's position
+    actor->SetPosition(originalPosition.x(), originalPosition.y(), originalPosition.z());
+}
+
 
 /**
  * @brief Sets the color of the model part.
@@ -119,30 +151,9 @@ void ModelPart::setColour(QColor Clr) {
  *
  * @param isvisible The visibility status to set for the model part.
  */
-void ModelPart::setVisible(bool isvisible) {
+
+void ModelPart::setVisible(const bool isvisible) {
     isVisible = isvisible;
-}
-
-/**
- * @brief Loads an STL file for the model part.
- *
- * @param fileName The name of the STL file to load.
- */
-void ModelPart::loadSTL(QString fileName) {
-    // Load the STL file
-    file = vtkSmartPointer<vtkSTLReader>::New();
-    file->SetFileName(fileName.toStdString().c_str());
-    file->Update();
-
-    // Check if the file is loaded correctly
-    if (file->GetOutput() == nullptr) {
-        qDebug() << "Failed to load STL file: " << fileName;
-        return;
-    }
-
-    // Initialize the part's mapper and actor
-    mapper->SetInputConnection(file->GetOutputPort());
-    actor->SetMapper(mapper);
 }
 
 /**
@@ -150,7 +161,7 @@ void ModelPart::loadSTL(QString fileName) {
  *
  * @param name The name to set for the model part.
  */
-void ModelPart::setName(QString name) {
+void ModelPart::setName(const QString name) {
     Name = name;
 }
 
@@ -159,7 +170,7 @@ void ModelPart::setName(QString name) {
  *
  * @return The color of the model part.
  */
-QColor ModelPart::get_Color(void) const {
+const QColor ModelPart::getColor(void) {
     return Colour;
 }
 
@@ -168,7 +179,7 @@ QColor ModelPart::get_Color(void) const {
  *
  * @return The name of the model part.
  */
-const QString ModelPart::get_Name(void) {
+const QString ModelPart::getName(void) {
     return Name;
 }
 
@@ -177,7 +188,7 @@ const QString ModelPart::get_Name(void) {
  *
  * @return The visibility status of the model part.
  */
-bool ModelPart::get_Visibility(void) const {
+const bool ModelPart::getVisibility(void) {
     return isVisible;
 }
 
@@ -186,7 +197,7 @@ bool ModelPart::get_Visibility(void) const {
  *
  * @return The actor of the model part.
  */
-vtkSmartPointer<vtkActor> ModelPart::getActor() {
+const vtkSmartPointer<vtkActor> ModelPart::getActor() {
     return actor;
 }
 
@@ -210,12 +221,25 @@ vtkActor* ModelPart::getNewActor() {
 
 void ModelPart::setTopLevelBool(bool topLevelBool)
 {
-	topLevel = topLevelBool;
+    topLevel = topLevelBool;
 }
 
-bool ModelPart::getTopLevelBool()
+bool ModelPart::getTopLevelBool() const
 {
     return topLevel;
 }
 
+QVector3D ModelPart::getOriginalPosition() const {
+    return originalPosition;
+}
+void ModelPart::setPosition(const QVector3D& newPosition) {
+    position = newPosition;
+    actor->SetPosition(position.x(), position.y(), position.z());
+}
+void ModelPart::resetToOriginalPosition() {
+    actor->SetPosition(originalPosition.x(), originalPosition.y(), originalPosition.z());
+}
 
+void ModelPart::resetPosition() {
+    setPosition(originalPosition);
+}

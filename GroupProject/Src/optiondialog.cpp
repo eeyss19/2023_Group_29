@@ -48,10 +48,10 @@ void OptionDialog::saveSettings(){
 
 
 void OptionDialog::loadSettings(){
-    Colour = ptr->get_Color();
-    Name = ptr->get_Name();
+    Colour = ptr->getColor();
+    Name = ptr->getName();
     ui->lineEdit->setText(Name);
-    isVisible = ptr->get_Visibility();
+    isVisible = ptr->getVisibility();
     ui->checkBox->setChecked(isVisible);
 }
 

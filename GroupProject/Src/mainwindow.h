@@ -33,11 +33,23 @@ public slots:
     void vrButton();
     void handleTreeClicked();
     void startVR();
+    void on_pushButton_2_clicked();
+    void on_pushButton_3_clicked();
+    void on_pushButton_4_clicked();
+    void on_pushButton_5_clicked();
+    void on_pushButton_6_clicked();
 signals:
     void statusUpdateMessage(const QString & message, int timeout);
 private slots:
     void on_actionOpen_File_triggered();
     void on_actionItem_Options_triggered();
+    void on_actionSave_Screenshot_triggered();
+    void on_actionStart_VR_triggered();
+    void on_actionStop_VR_triggered();
+    void on_actionChange_Background_triggered();
+    void on_actionChange_App_Color_triggered();
+    void on_actionHow_to_Use_triggered();
+    void on_actionEdit_Properties_triggered();
 
 private:
     Ui::MainWindow *ui;

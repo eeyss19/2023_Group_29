@@ -1,11 +1,20 @@
 <RCC>
-    <qresource prefix="/Icons"/>
-    <qresource prefix="/">
-        <file>icons/fileopen.png</file>
-        <file>icons/filesave.png</file>
-        <file>icons/help.png</file>
-        <file>icons/print.png</file>
-        <file>icons/startVR.png</file>
-        <file>icons/stopVR.png</file>
-    </qresource>
+	<qresource prefix="/Icons"/>
+	<qresource prefix="/">
+		<file>Icons/fileopen.png</file>
+		<file>Icons/filesave.png</file>
+		<file>Icons/help.png</file>
+		<file>Icons/print.png</file>
+		<file>Icons/startVR.png</file>
+		<file>Icons/stopVR.png</file>
+		<file>icons/fileopen.png</file>
+		<file>icons/filesave.png</file>
+		<file>icons/help.png</file>
+		<file>icons/print.png</file>
+		<file>icons/startVR.png</file>
+		<file>icons/stopVR.png</file>
+		<file>Icons/changebgcolor.png</file>
+		<file>Icons/settings.png</file>
+		<file>Icons/resetview.png</file>
+	</qresource>
 </RCC>

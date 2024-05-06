@@ -293,13 +293,13 @@ void MainWindow::startVR()
 
 void MainWindow::on_pushButton_4_clicked() {
  
-    /*
-    if (vrRenderThread && vrRenderThread->isRunning()) {
-        vrRenderThread->issueCommand(VRRenderThread::END_RENDER, 0);
-        vrRenderThread->wait(); // Wait for the thread to finish
-        delete vrRenderThread; // Clean up
-        vrRenderThread = nullptr; // Reset pointer
-    }*/
+    
+    if (vrThread && vrThread->isRunning()) {
+        vrThread->issueCommand(VRRenderThread::END_RENDER, 0);
+        vrThread->wait(); // Wait for the thread to finish
+        delete vrThread; // Clean up
+        vrThread = nullptr; // Reset pointer
+    }
 }
 
 void MainWindow::on_pushButton_5_clicked()

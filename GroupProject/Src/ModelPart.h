@@ -126,6 +126,8 @@ public:
 
     void clip(const bool filterFlag);
 
+    void applyFilters();
+
     /**
      * Get the name of the ModelPart.
      * @return the name of the ModelPart as a QString.
@@ -180,8 +182,8 @@ private:
     QVector3D                                   originalPosition;   /*Member Variable to store original position*/
     QVector3D                                   position;           /*Member Variable to store current position*/
 
-    bool shrinkStatus;
-    bool clipStatus;
+    bool shrinkStatus = false;
+    bool clipStatus = false;
 
 
 

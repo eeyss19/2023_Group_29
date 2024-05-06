@@ -24,13 +24,11 @@ public:
     void updateRenderFromTree(const QModelIndex& index);
     void VRActorsFromTree(const QModelIndex& index);
     void resetCamera();
-    void updateVRthread();
-    void loadStlFile(const QString& fileName);
+    void loadStlFile(const QString& fileName);  
     void update_name();
     
 public slots:
     void settingsDialog();
-    void vrButton();
     void handleTreeClicked();
     void startVR();
     void on_pushButton_2_clicked();
@@ -38,8 +36,10 @@ public slots:
     void on_pushButton_4_clicked();
     void on_pushButton_5_clicked();
     void on_pushButton_6_clicked();
+
 signals:
     void statusUpdateMessage(const QString & message, int timeout);
+
 private slots:
     void on_actionOpen_File_triggered();
     void on_actionItem_Options_triggered();
@@ -49,6 +49,8 @@ private slots:
     void on_actionChange_Background_triggered();
     void on_actionChange_App_Color_triggered();
     void on_actionHow_to_Use_triggered();
+    void on_actionClip_Filter_triggered();
+    void on_actionShrink_Filter_triggered();
     void on_actionEdit_Properties_triggered();
 
 private:

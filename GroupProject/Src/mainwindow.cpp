@@ -13,6 +13,7 @@
 #include <vtkNamedColors.h>
 #include <QPixMap>
 #include <qmessagebox.h>
+#include <vtkLight.h>
 // Other includes come after
 
 /**
@@ -38,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButton_4, &QPushButton::released, this, &MainWindow::on_pushButton_4_clicked);
     connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::handleTreeClicked);
     connect(this, &MainWindow::statusUpdateMessage, ui->statusbar, &QStatusBar::showMessage);
+    
     
 
     //Button Colors
@@ -78,16 +80,19 @@ MainWindow::MainWindow(QWidget *parent)
     renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
     ui->widget->setRenderWindow(renderWindow);
 
-
     /* Add a renderer */
     vtkNew<vtkNamedColors> colors;
     renderer = vtkSmartPointer<vtkRenderer>::New();
     renderer->SetBackground(colors->GetColor3d("white").GetData()); // Set background color to white
     renderWindow->AddRenderer(renderer);
+
+    /* Add a light */
+    vtkSmartPointer<vtkLight> light = vtkSmartPointer<vtkLight>::New();
+    light->SetLightTypeToSceneLight();
+    light->SetPosition(1.0, 1.0, 1.0);
+    renderer->AddLight(light);
+
     resetCamera();
-
-    
-
 }
 
 /**
@@ -143,7 +148,7 @@ void MainWindow::on_pushButton_2_clicked()
 /**
  * @brief Handles the second button click event.
  */
-void MainWindow::vrButton(){
+void MainWindow::on_pushButton_3_clicked(){
     vrThread = new VRRenderThread();
     startVR();
 }
@@ -279,33 +284,22 @@ void MainWindow::resetCamera() {
 
 void MainWindow::startVR()
 {
+    if (!vrThread || vrThread->isRunning()) {
+		return; // VR is already running or no instance available
+	}
     VRActorsFromTree(partList->index(0, 0, QModelIndex()));
     vrThread->start();
 }
 
-void MainWindow::on_pushButton_3_clicked()
-{ /*
+void MainWindow::on_pushButton_4_clicked() {
+ 
+    /*
     if (vrRenderThread && vrRenderThread->isRunning()) {
         vrRenderThread->issueCommand(VRRenderThread::END_RENDER, 0);
         vrRenderThread->wait(); // Wait for the thread to finish
         delete vrRenderThread; // Clean up
         vrRenderThread = nullptr; // Reset pointer
     }*/
-}
-
-void MainWindow::on_pushButton_4_clicked() {/*
-    if (!vrRenderThread || vrRenderThread->isRunning()) {
-        return; // VR is already running or no instance available
-    }
-
-    // Eg: adding an actor
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    // ... set up the actor ...
-    vrRenderThread->addActorOffline(actor);
-
-    // Start the VR thread
-    vrRenderThread->start();
-*/
 }
 
 void MainWindow::on_pushButton_5_clicked()
@@ -330,6 +324,17 @@ void MainWindow::on_pushButton_6_clicked()
         renderer->SetBackground(r, g, b);
         renderWindow->Render();
     }
+}
+
+void MainWindow::on_actionShrink_Filter_triggered()
+{
+    const bool filterFlag = ui->actionShrink_Filter->isChecked();
+    QModelIndex index = ui->treeView->currentIndex();
+    ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+    selectedPart->shrink(filterFlag);
+    updateRender();
+    renderWindow->Render();
+    resetCamera();
 }
 
 
@@ -391,6 +396,17 @@ void MainWindow::on_actionHow_to_Use_triggered()
             "6. Change Background Color: ..."));
 }
 
+void MainWindow::on_actionClip_Filter_triggered()
+{
+	const bool filterFlag = ui->actionClip_Filter->isChecked();
+	QModelIndex index = ui->treeView->currentIndex();
+	ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+	selectedPart->clip(filterFlag);
+	updateRender();
+	renderWindow->Render();
+	resetCamera();
+}
+
 
 void MainWindow::on_actionEdit_Properties_triggered()
 {
@@ -436,23 +452,13 @@ void MainWindow::VRActorsFromTree(const QModelIndex& index)
     
 }
 
-// 
-// Open file creates a top level with the name of the 
-// Rotation in 
-// Add part at runtime
 // Stop 
-// VTK Actor has functional visibility but not the VR actor?
 // 
+// VTK Actor has functional visibility but not the VR actor?
+
 // Demonstrate two filters working.These can be applied to parts of the model independently (e.g.only to
 // a wheel), and can be applied in any combination.
-//
-// you can change things in the GUI and the effect is seen in VR, while it is running.E.g.changing colour,
-// visible status, add an extra STL file, etc.
-// 
-// Interaction with model using VR controllers.The ideal case is that every single sub assembly from the
-// Level2 model can be manipulated independently, but this may not be feasible.How interactive can you
-// make the experience ? This could be using code, or by additional partitioning of the CAD model, or both.
-// 
+
 // Add some animation : e.g.the rotation hinted at in the renderThread class, or something more advanced 
 // Virtual environment - can you add a floor, scenery, etc either manually or with a Skybox
 // #file:'mainwindow.cpp' #file:'mainwindow.h' #file:'ModelPart.cpp' #file:'ModelPart.h' #file:'ModelPartList.cpp' #file:'ModelPartList.h' #file:'VRRenderThread.cpp' #file:'VRRenderThread.h' #file:'optiondialog.cpp' #file:'optiondialog.h' 

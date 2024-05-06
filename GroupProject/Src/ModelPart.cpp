@@ -18,6 +18,10 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <QVector3D>
+#include <vtkShrinkFilter.h>
+#include <vtkGeometryFilter.h>
+#include <vtkPlane.h>
+#include <vtkClipDataSet.h>
 
 
 ModelPart::ModelPart(const QList<QVariant>& data, ModelPart* parent)
@@ -172,6 +176,122 @@ void ModelPart::setName(const QString name) {
  */
 const QColor ModelPart::getColor(void) {
     return Colour;
+}
+
+void ModelPart::shrink(const bool filterFlag) {
+    // Add a check for top level item and if it is then shrink all of its child items too
+    if (this->getTopLevelBool()) {
+		for (int i = 0; i < m_childItems.size(); i++) {
+			m_childItems[i]->shrink(filterFlag);
+		}
+        return;
+	}
+    if (filterFlag) {
+        shrinkStatus = true; 
+
+        if (clipStatus) {
+            vtkSmartPointer<vtkPlane> planeLeft = vtkSmartPointer<vtkPlane>::New();
+            planeLeft->SetOrigin(0.0, 0.0, 0.0);
+            planeLeft->SetNormal(0.0, 1.0, 0.0);
+
+            vtkSmartPointer<vtkClipDataSet> clipFilter = vtkSmartPointer<vtkClipDataSet>::New();
+            clipFilter->SetInputConnection(file->GetOutputPort());
+            clipFilter->SetClipFunction(planeLeft.Get());
+            vtkSmartPointer<vtkShrinkFilter> shrinkFilter = vtkSmartPointer<vtkShrinkFilter>::New();
+            shrinkFilter->SetInputConnection(clipFilter->GetOutputPort());
+            shrinkFilter->SetShrinkFactor(0.5);
+            shrinkFilter->Update();
+
+
+            // Convert the output to vtkPolyData
+            vtkSmartPointer<vtkGeometryFilter> geometryFilter = vtkSmartPointer<vtkGeometryFilter>::New();
+            geometryFilter->SetInputConnection(shrinkFilter->GetOutputPort());
+            geometryFilter->Update();
+
+            // Now you can set the output of the geometry filter as the input to the mapper
+            mapper->SetInputConnection(geometryFilter->GetOutputPort());
+            actor->SetMapper(mapper);
+        }
+
+        vtkSmartPointer<vtkShrinkFilter> shrinkFilter = vtkSmartPointer<vtkShrinkFilter>::New();
+        shrinkFilter->SetInputConnection(file->GetOutputPort());
+        shrinkFilter->SetShrinkFactor(0.5);
+        shrinkFilter->Update();
+
+
+        // Convert the output to vtkPolyData
+        vtkSmartPointer<vtkGeometryFilter> geometryFilter = vtkSmartPointer<vtkGeometryFilter>::New();
+        geometryFilter->SetInputConnection(shrinkFilter->GetOutputPort());
+        geometryFilter->Update();
+
+        // Now you can set the output of the geometry filter as the input to the mapper
+        mapper->SetInputConnection(geometryFilter->GetOutputPort());
+        actor->SetMapper(mapper);
+    }
+    else {
+        shrinkStatus = false;
+        mapper->SetInputConnection(file->GetOutputPort());
+        actor->SetMapper(mapper);
+    }
+
+}
+
+void ModelPart::clip(const bool filterFlag)
+{
+    // Add a check for top level item and if it is then shrink all of its child items too
+    if (this->getTopLevelBool()) {
+        for (int i = 0; i < m_childItems.size(); i++) {
+            m_childItems[i]->clip(filterFlag);
+        }
+        return;
+    }
+    if (filterFlag) {
+clipStatus = true;
+    if (shrinkStatus) {
+    vtkSmartPointer<vtkPlane> planeLeft = vtkSmartPointer<vtkPlane>::New();
+    planeLeft->SetOrigin(0.0, 0.0, 0.0);
+    planeLeft->SetNormal(0.0, 1.0, 0.0);
+
+    vtkSmartPointer<vtkClipDataSet> clipFilter = vtkSmartPointer<vtkClipDataSet>::New();
+    clipFilter->SetInputConnection(file->GetOutputPort());
+    clipFilter->SetClipFunction(planeLeft.Get());
+    vtkSmartPointer<vtkShrinkFilter> shrinkFilter = vtkSmartPointer<vtkShrinkFilter>::New();
+    shrinkFilter->SetInputConnection(clipFilter->GetOutputPort());
+    shrinkFilter->SetShrinkFactor(0.5);
+    shrinkFilter->Update();
+
+
+    // Convert the output to vtkPolyData
+    vtkSmartPointer<vtkGeometryFilter> geometryFilter = vtkSmartPointer<vtkGeometryFilter>::New();
+    geometryFilter->SetInputConnection(shrinkFilter->GetOutputPort());
+    geometryFilter->Update();
+
+    // Now you can set the output of the geometry filter as the input to the mapper
+    mapper->SetInputConnection(geometryFilter->GetOutputPort());
+    actor->SetMapper(mapper);
+}
+        // Apply a clipping plane whose normal is the x-axis that crosses the x-axis at x=0
+        vtkSmartPointer<vtkPlane> planeLeft = vtkSmartPointer<vtkPlane>::New();
+        planeLeft->SetOrigin(0.0, 0.0, 0.0);
+        planeLeft->SetNormal(0.0, 1.0, 0.0);
+
+        vtkSmartPointer<vtkClipDataSet> clipFilter = vtkSmartPointer<vtkClipDataSet>::New();
+        clipFilter->SetInputConnection(file->GetOutputPort());
+        clipFilter->SetClipFunction(planeLeft.Get());
+
+        // Convert the output to vtkPolyData
+        vtkSmartPointer<vtkGeometryFilter> geometryFilter = vtkSmartPointer<vtkGeometryFilter>::New();
+        geometryFilter->SetInputConnection(clipFilter->GetOutputPort());
+        geometryFilter->Update();
+
+        mapper->SetInputConnection(geometryFilter->GetOutputPort());
+        actor->SetMapper(mapper);
+    }
+    else {
+clipStatus = false;
+        mapper->SetInputConnection(file->GetOutputPort());
+        actor->SetMapper(mapper);
+    }
 }
 
 /**
